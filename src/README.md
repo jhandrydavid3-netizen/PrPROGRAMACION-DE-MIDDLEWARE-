@@ -6,7 +6,7 @@ Esta API permite registrar, consultar, actualizar y eliminar productos agrícola
 ## 2. Requisitos Previos
 - Node.js 18 o superior
 - npm
-- Cliente REST (Thunder Client o Postman)
+- Cliente REST (Thunder Client )
 
 ## 3. Instalación y Ejecución
 
