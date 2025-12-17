@@ -1,0 +1,27 @@
+{
+  // Visit https://aka.ms/tsconfig to read more about this file
+  "compilerOptions": {
+    // File Layout
+
+    "module": "nodenext",
+    "target": "ESNext",
+    "moduleResolution": "nodenext",
+
+    "lib": [
+      "ESNext"
+    ],
+    // For nodejs:
+
+    // Recommended Options
+    "outDir": "./dis",
+    "rootDir": "./src",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true
+  
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules"]
+}
