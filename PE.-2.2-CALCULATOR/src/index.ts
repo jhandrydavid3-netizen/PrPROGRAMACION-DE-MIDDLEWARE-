@@ -12,24 +12,65 @@ const fastify = Fastify({
 fastify.register(swagger, {
   openapi: {
     info: {
-      title: 'MPC para calcular operaciones basicas',
-      description: 'API para operaciones aritmeticas basicas usadas en MPC',
-      version: '1.0.0'
+      title: 'MCP Calculator Server',
+      description: `
+Servidor MCP para operaciones aritméticas básicas.
+Este API permite realizar operaciones de suma, resta, multiplicación y división
+siguiendo buenas prácticas de diseño de APIs.
+      `,
+      version: '1.0.0',
+      termsOfService: 'https://example.com/terms',
+      contact: {
+        name: 'Jhandry Becerra',
+        url: 'https://github.com/jhandrydavid3-netizen',
+        email: 'jhandry@example.com'
+      },
+      license: {
+        name: 'MIT',
+        url: 'https://opensource.org/licenses/MIT'
+      }
     },
+
     servers: [
       {
         url: 'http://localhost:3000',
         description: 'Servidor de desarrollo'
       }
     ],
+
     tags: [
       {
         name: 'calculator',
-        description: 'Operaciones aritmeticas basicas'
+        description: 'Operaciones aritméticas básicas del MCP Calculator'
       }
+    ],
+
+    components: {
+      securitySchemes: {
+        ApiKeyAuth: {
+          type: 'apiKey',
+          in: 'header',
+          name: 'x-api-key',
+          description:
+            'Autenticación mediante API Key para prevenir uso malicioso del MCP (Tool Poisoning).'
+        },
+        BearerAuth: {
+          type: 'http',
+          scheme: 'bearer',
+          bearerFormat: 'JWT',
+          description:
+            'Autenticación mediante token JWT para control de acceso y auditoría.'
+        }
+      }
+    },
+
+    security: [
+      { ApiKeyAuth: [] },
+      { BearerAuth: [] }
     ]
   }
 });
+
 
 fastify.register(fastifySwaggerUi, {
     routePrefix: '/docs',
