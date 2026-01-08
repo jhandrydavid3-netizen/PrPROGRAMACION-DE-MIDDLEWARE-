@@ -1,0 +1,147 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+enum Rol {
+  ESTUDIANTE
+  CLIENTE
+  ADMIN
+}
+
+enum EstadoPedido {
+  PENDIENTE
+  EN_PROCESO
+  COMPLETADO
+  CANCELADO
+}
+
+model Usuario {
+  id              Int       @id @default(autoincrement()) @map("id_usuario")
+  email           String    @unique @db.VarChar(100)
+  contrasena      String    @db.VarChar(255)
+  nombre          String    @db.VarChar(100)
+  apellido        String    @db.VarChar(100)
+  telefono        String?   @db.VarChar(20)
+  fechaRegistro   DateTime  @default(now()) @map("fecha_registro")
+  fotoPerfil      String?   @map("foto_perfil") @db.VarChar(255)
+  activo          Boolean   @default(true)
+  rol             Rol       @default(CLIENTE)
+  
+  carreraId       Int?      @map("id_carrera")
+  carrera         Carrera?  @relation(fields: [carreraId], references: [id])
+  
+  serviciosOfrecidos Servicio[] @relation("ProveedorServicio")
+  pedidosRealizados  Pedido[]   @relation("ClientePedido")
+  habilidades        UsuarioHabilidad[]
+
+  @@map("usuarios")
+}
+
+model Facultad {
+  id      Int       @id @default(autoincrement()) @map("id_facultad")
+  nombre  String    @unique @map("nombre_facultad") @db.VarChar(150)
+  
+  carreras Carrera[]
+
+  @@map("facultades")
+}
+
+model Carrera {
+  id         Int      @id @default(autoincrement()) @map("id_carrera")
+  facultadId Int      @map("id_facultad")
+  nombre     String   @map("nombre_carrera") @db.VarChar(150)
+  
+  facultad   Facultad @relation(fields: [facultadId], references: [id])
+  estudiantes Usuario[]
+
+  @@map("carreras")
+}
+
+model Categoria {
+  id          Int      @id @default(autoincrement()) @map("id_categoria")
+  nombre      String   @unique @map("nombre_categoria") @db.VarChar(100)
+  descripcion String?  @db.Text
+  
+  servicios   Servicio[]
+
+  @@map("categorias")
+}
+
+model Servicio {
+  id               Int      @id @default(autoincrement()) @map("id_servicio")
+  usuarioId        Int      @map("id_usuario")
+  categoriaId      Int      @map("id_categoria")
+  titulo           String   @db.VarChar(200)
+  descripcion      String   @db.Text
+  precio           Decimal  @db.Decimal(10, 2)
+  tiempoEntrega    String?  @map("tiempo_entrega") @db.VarChar(100)
+  imagenPortada    String?  @map("imagen_portada") @db.VarChar(255)
+  
+  contactoWhatsapp String?  @map("contacto_whatsapp") @db.VarChar(20)
+  contactoEmail    String?  @map("contacto_email") @db.VarChar(100)
+  contactoTelefono String?  @map("contacto_telefono") @db.VarChar(20)
+  
+  fechaPublicacion DateTime @default(now()) @map("fecha_publicacion")
+  activo           Boolean  @default(true)
+  
+  proveedor        Usuario   @relation("ProveedorServicio", fields: [usuarioId], references: [id])
+  categoria        Categoria @relation(fields: [categoriaId], references: [id])
+  pedidos          Pedido[]
+
+  @@map("servicios")
+}
+
+model Habilidad {
+  id      Int       @id @default(autoincrement()) @map("id_habilidad")
+  nombre  String    @unique @map("nombre_habilidad") @db.VarChar(100)
+  
+  usuarios UsuarioHabilidad[]
+
+  @@map("habilidades")
+}
+
+model UsuarioHabilidad {
+  id          Int       @id @default(autoincrement())
+  usuarioId   Int       @map("id_usuario")
+  habilidadId Int       @map("id_habilidad")
+  
+  usuario     Usuario   @relation(fields: [usuarioId], references: [id])
+  habilidad   Habilidad @relation(fields: [habilidadId], references: [id])
+
+  @@unique([usuarioId, habilidadId])
+  @@map("usuario_habilidades")
+}
+
+model Pedido {
+  id          Int          @id @default(autoincrement()) @map("id_pedido")
+  servicioId  Int          @map("id_servicio")
+  clienteId   Int          @map("id_cliente")
+  estado      EstadoPedido @default(PENDIENTE)
+  fechaPedido DateTime     @default(now()) @map("fecha_pedido")
+  fechaEntrega DateTime?   @map("fecha_entrega") @db.DateTime
+  montoTotal  Decimal      @map("monto_total") @db.Decimal(10, 2)
+  notas       String?      @db.Text
+  
+  servicio    Servicio     @relation(fields: [servicioId], references: [id])
+  cliente     Usuario      @relation("ClientePedido", fields: [clienteId], references: [id])
+  resena      Resena?
+
+  @@map("pedidos")
+}
+
+model Resena {
+  id           Int      @id @default(autoincrement()) @map("id_resena")
+  pedidoId     Int      @unique @map("id_pedido")
+  calificacion Int
+  comentario   String?  @db.Text
+  fechaResena  DateTime @default(now()) @map("fecha_resena")
+  
+  pedido       Pedido   @relation(fields: [pedidoId], references: [id])
+
+  @@map("resenas")
+}
